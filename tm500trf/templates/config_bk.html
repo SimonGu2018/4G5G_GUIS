@@ -1,0 +1,177 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">	<script src="/static/js/highcharts.js"></script>
+	<script src="/static/js/highcharts-more.js"></script>
+	<script src="/static/js/solid-gauge.js"></script>
+	<!--<script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>-->
+	<script src="/static/js/jquery-3.1.1.min.js"></script>
+       <script src="/static/js/dark-unica.js"></script>
+<style type="text/css">
+       @font-face {
+        font-family: "ericsson_capital";
+        src: url('/static/fonts/EricssonHilda/EOT/EricssonHilda-Regular.eot');
+        src: url('/static/fonts/EricssonHilda/EOT/EricssonHilda-Regular.eot?#iefix') format('embedded-opentype'),
+              url('/static/fonts/EricssonHilda/Woff/EricssonHilda-Regular.woff') format('woff'),
+              url('/static/fonts/EricssonHilda/TTF/EricssonHilda-Regular.ttf') format('truetype'),
+              url('/static/fonts/ericssoncapitaltt-webfont.svg#ericsson_capital_ttregular') format('svg');
+         font-weight: normal;
+         font-style: normal;
+       }
+       body{
+         background-color:black;
+      
+       }
+
+       #h1
+       {
+         font-family:"ericsson_capital";
+         font-size: 60px;
+         color:#FFFFFF;
+       }
+     </style>
+
+
+</head>
+<body>
+<div> 
+<h1 class="text-center" id="h1" background="#f00" align="right" style="display: inline">ERICSSON 5G</h1>
+<img src="/static/img/EICON/Vertical Lockup/White/SVG/ERI_vertical_RGB.svg" width=60 height=60 align="right" style="margin:0px 40px"/>
+<img src="/static/img/CMCClogo.png" width=60 height=60 align="right" style="margin:0px 20px"/>
+
+<div style="width: 100%; height: 100%; margin: 0 auto">
+  <div id="container-speed" style="width: 100%; height: 500px; float: left; margin: 5 auto"></div>
+  <!--
+  <div id="container-linechart" style="width: 49%; height: 500px; float: right">
+    <div id="container-line1" style="width: 100%; height: 245px; float: left; align: top">Line1</div>
+    <div id="container-line2" style="width: 100%; height: 245px; float: left; align: bottom; margin-top: 10px">Line2</div>
+   </div>
+  -->
+</div>
+</div>
+<script>
+		
+// DL Speed
+var chart1 = Highcharts.chart('container-speed', {
+	    chart: {
+	  	type: 'solidgauge',
+	  },
+	  title: {
+	  	text: 'L1 TX Throughput'
+	  	},
+		pane: {
+				center: ['50%', '85%'],
+				size: '140%',
+				startAngle: -90,
+				endAngle: 90,
+				background: {
+						backgroundColor: (Highcharts.theme && Highcharts.theme.background2) || '#EEE',
+						innerRadius: '60%',
+						outerRadius: '100%',
+						shape: 'arc'
+				}
+		},
+		tooltip: {
+				enabled: false
+		},
+		yAxis: {
+				min: 0,
+				max: 1500,
+				title: {
+						text: 'DL Speed'
+				},
+				stops: [
+						[0.1, '#55BF3B'], // green
+						[0.5, '#55BF3B'], // yellow
+						[0.9, '#55BF3B'] // red
+				],
+				lineWidth: 0,
+				minorTickInterval: null,
+				tickPixelInterval: 400,
+				tickWidth: 0,
+				title: {
+						y: -70
+				},
+				labels: {
+						y: 16
+				}
+		},
+		plotOptions: {
+				solidgauge: {
+						dataLabels: {
+								y: 5,
+								borderWidth: 0,
+								useHTML: true
+						}
+				}
+		},
+		credits: {
+				enabled: false
+		},
+		series: [{
+				name: 'Speed',
+				data: [0],
+				dataLabels: {
+						format: '<div style="text-align:center"><span style="font-size:25px;color:' +
+						((Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black') + '">{y}</span><br/>' +
+						'<span style="font-size:12px;color:silver">Mbps</span></div>'
+				},
+				tooltip: {
+						valueSuffix: ' Mbps'
+				}
+		}]
+});
+
+
+function activeLastPointToolip(chart) {
+		var points = chart.series[0].points;
+		chart.tooltip.refresh(points[points.length -1]);
+}
+
+</script>
+<script type="text/javascript">
+ var screenTimer = Object();
+ var intervalTime = 1000;
+ function DisplayConfg(){
+ 	 $.ajax({
+ 	   method: "POST",
+ 	   url : "/cfgdata/",
+ 	 }).done(function(cfgdata){
+ 	        //console.log(cfgdata)
+		var point,
+				newVal,
+				inc;
+		if (chart1) {
+				point = chart1.series[0].points[0];
+				inc = Math.round((Math.random() - 0.5) * 100);
+				newVal = cfgdata[0].dltput; 
+				point.update(parseFloat(newVal));
+		}
+ 	 	});
+ 	
+ 	}
+
+	function start_monitor(){
+		screenTimer = setInterval(DisplayConfg,intervalTime);
+		}
+	
+	function addLoadEvent(func){
+		var oldonload = window.onload;
+		if (typeof window.onload != "function"){
+			window.onload = func;
+			}else{
+				window.onload = function(){
+					oldonload();
+					func();
+					}
+				}
+		}
+		
+		addLoadEvent(start_monitor);
+		addLoadEvent(DisplayConfg);
+</script>
+
+</body>
+</html>
